@@ -27,7 +27,7 @@ services:
     environment:
       DATABASE_URL: postgresql://${DB_USER}:${DB_PASSWORD}@db:5432/${DB_NAME}
       ENVIRONMENT: ${ENVIRONMENT:-development}
-      CORS_ORIGINS: http://192.168.244.160:3000,http://192.168.244.160
+      CORS_ORIGINS: http://192.168.244.130:3000,http://192.168.244.130
     ports:
       - "8000:8000"
     depends_on:
@@ -44,7 +44,7 @@ services:
     build: ./frontend
     container_name: app-frontend
     environment:
-      REACT_APP_API_URL: http://192.168.244.160:8000
+      REACT_APP_API_URL: http://192.168.244.130:8000
     ports:
       - "3000:80"
     depends_on:
