@@ -142,7 +142,7 @@ pipeline {
                     
                     // Using SSH to deploy to your server
                     withCredentials([sshUserPrivateKey(
-                        credentialsId: 'ssh-server-credentials',
+                        credentialsId: 'deployment',
                         keyFileVariable: 'SSH_KEY',
                         usernameVariable: 'SSH_USER',
                         passphraseVariable: 'SSH_PASSPHRASE'
