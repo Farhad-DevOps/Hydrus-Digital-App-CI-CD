@@ -1,0 +1,61 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:15-alpine
+    container_name: app-db
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - app-network
+    restart: unless-stopped
+
+  backend:
+    build: ./backend
+    container_name: app-backend
+    environment:
+      DATABASE_URL: postgresql://${DB_USER}:${DB_PASSWORD}@db:5432/${DB_NAME}
+      ENVIRONMENT: ${ENVIRONMENT:-development}
+      CORS_ORIGINS: http://192.168.244.160:3000,http://192.168.244.160
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - ./backend:/app
+    command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+    networks:
+      - app-network
+    restart: unless-stopped
+
+  frontend:
+    build: ./frontend
+    container_name: app-frontend
+    environment:
+      REACT_APP_API_URL: http://192.168.244.160:8000
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+    networks:
+      - app-network
+    restart: unless-stopped
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
