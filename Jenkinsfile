@@ -146,7 +146,7 @@ pipeline {
                         keyFileVariable: 'SSH_KEY',
                        )]) {
                         sh """
-                            ssh -i \$SSH_KEY -o StrictHostKeyChecking=no \$SSH_root@192.168.244.130 << 'ENDSSH'
+                            ssh -i \$SSH_KEY -o StrictHostKeyChecking=no \root@192.168.244.130 << 'ENDSSH'
                                 # Pull latest images
                                 echo "Pulling latest images on server..."
                                 docker pull ${BACKEND_IMAGE}:${LATEST_TAG}
@@ -196,7 +196,7 @@ pipeline {
                         keyFileVariable: 'SSH_KEY',
                         )]) {
                         sh """
-                            ssh -i \$SSH_KEY -o StrictHostKeyChecking=no \$SSH_root@192.168.244.130 << 'ENDSSH'
+                            ssh -i \$SSH_KEY -o StrictHostKeyChecking=no \root@192.168.244.130 << 'ENDSSH'
                                 # Check backend health
                                 echo "Checking backend health..."
                                 BACKEND_HEALTH=\$(curl -s http://192.168.244.130:8000/health)
