@@ -3,7 +3,7 @@ pipeline {
     
     environment {
         // Docker Hub Configuration
-        DOCKERHUB_CREDENTIALS = 'Docker Hub credentials for pushing images'
+        DOCKERHUB_CREDENTIALS = 'DockerHub_pas'
         DOCKERHUB_NAMESPACE = 'alam1616'
         
         // Image Names
