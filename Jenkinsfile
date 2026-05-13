@@ -144,9 +144,7 @@ pipeline {
                     withCredentials([sshUserPrivateKey(
                         credentialsId: 'deployment',
                         keyFileVariable: 'SSH_KEY',
-                        usernameVariable: 'SSH_USER',
-                        passphraseVariable: 'SSH_PASSPHRASE'
-                    )]) {
+                       )]) {
                         sh """
                             ssh -i \$SSH_KEY -o StrictHostKeyChecking=no \$SSH_USER@192.168.244.130 << 'ENDSSH'
                                 # Pull latest images
@@ -194,10 +192,9 @@ pipeline {
                     sleep(time: 10, unit: 'SECONDS')
                     
                     withCredentials([sshUserPrivateKey(
-                        credentialsId: 'ssh-server-credentials',
+                        credentialsId: 'deployment',
                         keyFileVariable: 'SSH_KEY',
-                        usernameVariable: 'SSH_USER'
-                    )]) {
+                        )]) {
                         sh """
                             ssh -i \$SSH_KEY -o StrictHostKeyChecking=no \$SSH_USER@192.168.244.130 << 'ENDSSH'
                                 # Check backend health
