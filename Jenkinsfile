@@ -133,131 +133,8 @@ pipeline {
                 }
             }
         }
-        
-        // ==================== DEPLOY STAGE ====================
-        stage('Deploy to Production Server') {
-            steps {
-                script {
-                    echo "🚀 Starting deployment to production server..."
-                    
-                    // Using SSH to deploy to your server
-                    withCredentials([sshUserPrivateKey(
-                        credentialsId: 'deployment',
-                        keyFileVariable: 'SSH_KEY',
-                       )]) {
-                        sh """
-                           ssh -i $SSH_KEY -o StrictHostKeyChecking=no root@192.168.244.130 << 'ENDSSH'
-                                # Pull latest images
-                                echo "Pulling latest images on server..."
-                                docker pull ${BACKEND_IMAGE}:${LATEST_TAG}
-                                docker pull ${FRONTEND_IMAGE}:${LATEST_TAG}
-                                
-                                # Stop and remove old containers
-                                echo "Stopping old containers..."
-                                docker stop hydrus-backend hydrus-frontend 2>/dev/null || true
-                                docker rm hydrus-backend hydrus-frontend 2>/dev/null || true
-                                
-                                # Run backend container
-                                echo "Starting backend container..."
-                                docker run -d \
-                                    --name hydrus-backend \
-                                    --restart unless-stopped \
-                                    -p 8000:8000 \
-                                    -e ENVIRONMENT=production \
-                                    ${BACKEND_IMAGE}:${LATEST_TAG}
-                                
-                                # Run frontend container
-                                echo "Starting frontend container..."
-                                docker run -d \
-                                    --name hydrus-frontend \
-                                    --restart unless-stopped \
-                                    -p 3000:80 \
-                                    -e REACT_APP_API_URL=http://localhost:8000 \
-                                    ${FRONTEND_IMAGE}:${LATEST_TAG}
-                                
-                                echo "Deployment completed on server!"
-                            ENDSSH
-                        """
-                    }
-                }
-            }
-        }
-        
-        stage('Health Check') {
-            steps {
-                script {
-                    echo "🏥 Performing health checks..."
-                    
-                    // Wait for containers to start
-                    sleep(time: 10, unit: 'SECONDS')
-                    
-                    withCredentials([sshUserPrivateKey(
-                        credentialsId: 'deployment',
-                        keyFileVariable: 'SSH_KEY',
-                        )]) {
-                        sh """
-                            ssh -i $SSH_KEY -o StrictHostKeyChecking=no root@192.168.244.130 << 'ENDSSH'
-                                # Check backend health
-                                echo "Checking backend health..."
-                                BACKEND_HEALTH=\$(curl -s http://192.168.244.130:8000/health)
-                                if echo \$BACKEND_HEALTH | grep -q "healthy"; then
-                                    echo "✅ Backend is healthy"
-                                else
-                                    echo "❌ Backend health check failed"
-                                    exit 1
-                                fi
-                                
-                                # Check frontend
-                                echo "Checking frontend..."
-                                FRONTEND_HEALTH=\$(curl -s http://192.168.244.130:3000/health)
-                                if [ ! -z "\$FRONTEND_HEALTH" ]; then
-                                    echo "✅ Frontend is healthy"
-                                else
-                                    echo "❌ Frontend health check failed"
-                                    exit 1
-                                fi
-                                
-                                echo "✅ All health checks passed!"
-                            ENDSSH
-                        """
-                    }
-                }
-            }
-        }
-    }
-    
-    post {
-        success {
-            echo "🎉 Pipeline completed successfully!"
-            echo "📦 Images pushed:"
-            echo "  - ${BACKEND_IMAGE}:${IMAGE_TAG}"
-            echo "  - ${FRONTEND_IMAGE}:${IMAGE_TAG}"
-            echo "🌐 Application deployed to: http://192.168.244.130:3000"
-            
-            // Optional: Send notification
-            script {
-                // Send email notification
-                emailext(
-                    subject: "✅ Pipeline SUCCESS: ${env.JOB_NAME} - Build #${env.BUILD_NUMBER}",
-                    body: """
-                        Pipeline completed successfully!
-                        
-                        Build: ${env.BUILD_URL}
-                        Git Commit: ${env.GIT_COMMIT}
-                        Branch: ${env.BRANCH_NAME}
-                        
-                        Images pushed:
-                        - Backend: ${BACKEND_IMAGE}:${IMAGE_TAG}
-                        - Frontend: ${FRONTEND_IMAGE}:${IMAGE_TAG}
-                        
-                        Application: http://192.168.244.130:3000
-                    """,
-                    to: "team@example.com"
-                )
-            }
-        }
-        
-        failure {
+                
+     failure {
             echo "❌ Pipeline failed! Check logs for details."
             
             // Optional: Send failure notification
@@ -276,7 +153,7 @@ pipeline {
             )
         }
         
-        always {
+       always {
             script {
                 // Clean up Docker images to save space
                 sh """
