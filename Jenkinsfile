@@ -133,25 +133,6 @@ pipeline {
                 }
             }
         }
-                
-     failure {
-            echo "❌ Pipeline failed! Check logs for details."
-            
-            // Optional: Send failure notification
-            emailext(
-                subject: "❌ Pipeline FAILED: ${env.JOB_NAME} - Build #${env.BUILD_NUMBER}",
-                body: """
-                    Pipeline failed!
-                    
-                    Build: ${env.BUILD_URL}
-                    Git Commit: ${env.GIT_COMMIT}
-                    Branch: ${env.BRANCH_NAME}
-                    
-                    Please check the logs for details.
-                """,
-                to: "team@example.com"
-            )
-        }
-        
+                       
     }
 }
